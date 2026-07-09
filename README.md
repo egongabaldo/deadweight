@@ -12,8 +12,9 @@ cash, upgrade power, and unlock bigger shredder tiers. Loosely inspired by
 - **Core loop:** items spawn in a tray → player drags them into the
   shredder mouth → item is destroyed and converted to money → money buys
   upgrades (shredder power, then a full tier upgrade to a bigger machine).
-- **Art:** placeholder geometric shapes (`Polygon2D`/`ColorRect`) —
-  mechanics first, real art later.
+- **Art:** placeholder geometric primitives in true 3D (`MeshInstance3D`
+  boxes/planes, a procedurally-generated hopper mesh) viewed from an
+  angled `Camera3D` — mechanics first, real art later.
 - **Out of scope for v0.1** (tracked for the roadmap): auto-feed upgrade,
   multiple item/material types, prestige beyond the 5 tiers, Steam
   achievements/leaderboards, final art, mobile port.
@@ -29,15 +30,16 @@ handles simple 2D drag physics and Steam export cleanly.
 ```
 project.godot
 scenes/
-  Main.tscn            # HUD, item spawner, shop
-  ShreddableItem.tscn   # draggable junk placeholder
-  Burst.tscn            # one-shot shred particle effect
+  Main.tscn            # 3D scene: camera, light, ground, belt, hopper, HUD, shop
+  ShreddableItem.tscn   # draggable junk placeholder (Area3D cube)
+  Burst.tscn            # one-shot shred particle effect (CPUParticles3D)
 scripts/
   Economy.gd            # autoload: money, power/tier levels, cost curves
   SaveManager.gd         # autoload: JSON save/load to user://savegame.json
-  Main.gd                # wires HUD + spawner + shop to Economy
-  ShreddableItem.gd       # drag-and-drop behavior
-  ShredderMouth.gd        # detects dropped items, awards money, shreds
+  Main.gd                # wires HUD + spawner + shop to Economy, aims the camera
+  ShreddableItem.gd       # conveyor ride + drag-and-drop behavior (3D raycast)
+  ShredderMouth.gd        # detects items over the hopper, awards money, shreds
+  HopperMesh.gd            # procedurally builds the funnel/hopper mesh
 ```
 
 ## Running locally
@@ -49,8 +51,10 @@ To try it:
 1. Install [Godot 4.3+](https://godotengine.org/download) (standard build).
 2. Open this folder as a project (`project.godot`) in the editor.
 3. Press F5 (or the Play button) to run `scenes/Main.tscn`.
-4. Drag the red squares into the dark shredder mouth to earn money, then
-   use the shop buttons (bottom-right) to buy upgrades.
+4. Objects spawn at the top of the conveyor belt and slide down its
+   center; drag a red cube (at any point along the belt) into the dark
+   hopper at the bottom to earn money, then use the shop buttons
+   (bottom-right) to buy upgrades.
 
 Since the scenes were hand-written as text rather than saved from the
 editor, double-check on first open for anything Godot wants to

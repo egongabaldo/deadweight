@@ -1,16 +1,23 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ShreddableItem.gd" id="1"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_item"]
-size = Vector2(40, 40)
+[sub_resource type="BoxShape3D" id="BoxShape3D_item"]
+size = Vector3(0.8, 0.8, 0.8)
 
-[node name="ShreddableItem" type="Area2D"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_item"]
+albedo_color = Color(0.75, 0.25, 0.25, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_item"]
+material = SubResource("StandardMaterial3D_item")
+size = Vector3(0.8, 0.8, 0.8)
+
+[node name="ShreddableItem" type="RigidBody3D"]
 script = ExtResource("1")
+input_ray_pickable = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_item")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_item")
 
-[node name="Visual" type="Polygon2D" parent="."]
-color = Color(0.75, 0.25, 0.25, 1)
-polygon = PackedVector2Array(-20, -20, 20, -20, 20, 20, -20, 20)
+[node name="Visual" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_item")

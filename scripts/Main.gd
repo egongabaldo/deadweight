@@ -1,4 +1,4 @@
-extends Node2D
+extends Node3D
 ## Wires the MVP loop together: spawns junk items on a timer, listens for
 ## shredded items to award money, and keeps the HUD/shop buttons in sync
 ## with Economy state.
@@ -7,8 +7,9 @@ extends Node2D
 @export var spawn_interval: float = 1.5
 @export var max_items_on_tray: int = 6
 
-@onready var spawn_point: Marker2D = $ItemSpawner
-@onready var shredder_mouth: Area2D = $ShredderMouth
+@onready var spawn_point: Marker3D = $ItemSpawner
+@onready var conveyor_end: Marker3D = $ConveyorEnd
+@onready var shredder_mouth: Area3D = $ShredderMouth
 @onready var money_label: Label = $HUD/MoneyLabel
 @onready var tier_label: Label = $HUD/TierLabel
 @onready var power_button: Button = $HUD/ShopPanel/PowerUpgradeButton
@@ -19,6 +20,8 @@ var _items_on_tray: int = 0
 
 
 func _ready() -> void:
+	get_viewport().physics_object_picking = true
+
 	SaveManager.load_game()
 
 	Economy.money_changed.connect(_on_money_changed)
@@ -41,9 +44,10 @@ func _spawn_item() -> void:
 		return
 	var item: ShreddableItem = item_scene.instantiate()
 	add_child(item)
-	item.global_position = spawn_point.global_position + Vector2(
-		randf_range(-80.0, 80.0), randf_range(-30.0, 30.0)
+	item.global_position = spawn_point.global_position + Vector3(
+		0.0, 0.0, randf_range(-0.15, 0.15)
 	)
+	item.belt_target = conveyor_end.global_position
 	item.tree_exited.connect(_on_item_removed)
 	_items_on_tray += 1
 
