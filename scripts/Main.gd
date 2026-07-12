@@ -3,6 +3,8 @@ extends Node3D
 ## shredded items to award money, and keeps the HUD/shop buttons in sync
 ## with Economy state.
 
+const BuildInfo := preload("res://scripts/BuildInfo.gd")
+
 @export var item_scene: PackedScene
 @export var spawn_interval: float = 1.5
 @export var max_items_on_tray: int = 6
@@ -12,6 +14,7 @@ extends Node3D
 @onready var shredder_mouth: Area3D = $ShredderMouth
 @onready var money_label: Label = $HUD/MoneyLabel
 @onready var tier_label: Label = $HUD/TierLabel
+@onready var build_label: Label = $HUD/BuildLabel
 @onready var power_button: Button = $HUD/ShopPanel/PowerUpgradeButton
 @onready var tier_button: Button = $HUD/ShopPanel/TierUpgradeButton
 @onready var spawn_timer: Timer = $SpawnTimer
@@ -21,6 +24,7 @@ var _items_on_tray: int = 0
 
 func _ready() -> void:
 	get_viewport().physics_object_picking = true
+	build_label.text = "Build %d" % BuildInfo.BUILD_NUMBER
 
 	SaveManager.load_game()
 
