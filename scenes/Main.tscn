@@ -37,15 +37,15 @@ albedo_color = Color(0.55, 0.55, 0.6, 1)
 material = SubResource("StandardMaterial3D_belt")
 size = Vector3(2.4, 0.3, 5)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_belt"]
+size = Vector3(2.4, 0.3, 5)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rail"]
 albedo_color = Color(0.35, 0.35, 0.4, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_rail"]
 material = SubResource("StandardMaterial3D_rail")
 size = Vector3(0.2, 0.5, 5)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_belt"]
-size = Vector3(2.4, 0.3, 5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_rail"]
 size = Vector3(0.2, 0.5, 5)
@@ -202,8 +202,8 @@ offset_right = -16.0
 offset_bottom = 40.0
 theme_override_colors/font_color = Color(0.6, 0.6, 0.65, 1)
 theme_override_font_sizes/font_size = 14
-horizontal_alignment = 2
 text = "Build 0"
+horizontal_alignment = 2
 
 [node name="ItemTogglePanel" type="VBoxContainer" parent="HUD"]
 offset_left = 24.0
@@ -213,7 +213,7 @@ offset_bottom = 240.0
 
 [node name="ShopPanel" type="VBoxContainer" parent="HUD"]
 offset_left = 990.0
-offset_top = 560.0
+offset_top = 400.0
 offset_right = 1256.0
 offset_bottom = 700.0
 

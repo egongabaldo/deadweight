@@ -55,13 +55,21 @@ func _ready() -> void:
 func _build_item_toggles() -> void:
 	_item_enabled.resize(item_scenes.size())
 	_item_enabled.fill(true)
+	# Reuse the theme's actual Button background so the toggle rows visually
+	# match the shop buttons instead of guessing a color by hand. Main is a
+	# Node3D (no theme lookup of its own), so borrow it from a Control.
+	var row_style: StyleBox = power_button.get_theme_stylebox("normal", "Button")
 	for i in item_scenes.size():
 		var label: String = item_names[i] if i < item_names.size() else "Item %d" % (i + 1)
 		var check_box := CheckBox.new()
 		check_box.text = label
 		check_box.button_pressed = true
 		check_box.toggled.connect(_on_item_toggled.bind(i))
-		item_toggle_list.add_child(check_box)
+
+		var row := PanelContainer.new()
+		row.add_theme_stylebox_override("panel", row_style)
+		row.add_child(check_box)
+		item_toggle_list.add_child(row)
 
 
 func _on_item_toggled(pressed: bool, index: int) -> void:
@@ -80,8 +88,12 @@ func _spawn_item() -> void:
 	var chosen_scene: PackedScene = item_scenes[enabled_indices[randi() % enabled_indices.size()]]
 	var item: ShreddableItem = chosen_scene.instantiate()
 	add_child(item)
+	# Rest the item's own collision bottom exactly on the belt surface — the
+	# spawn marker sits AT that surface, so a bare offset of 0 would spawn
+	# the item's center there, embedding half of it inside the belt's
+	# collider and popping out violently the moment it's picked up.
 	item.global_position = spawn_point.global_position + Vector3(
-		randf_range(-0.3, 0.3), 0.0, randf_range(-0.15, 0.15)
+		randf_range(-0.3, 0.3), item.get_rest_height_offset() + 0.02, randf_range(-0.15, 0.15)
 	)
 	item.rotation.y = randf_range(0.0, TAU)
 	item.belt_target = conveyor_end.global_position
