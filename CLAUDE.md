@@ -48,6 +48,14 @@ obvious.
      editor, so the editor may want to resave/reformat some resources on
      first touch — that's expected, not a bug.
 
+## Build number
+
+The HUD shows "Build N" in the top-right corner (`scripts/BuildInfo.gd`,
+`BUILD_NUMBER` constant), so collaborators can eyeball whether they're
+running the same version without diffing commits. **Bump `BUILD_NUMBER` by
+1 every time you push a change that another collaborator might pull** —
+do this as part of the same commit, right before pushing.
+
 ## Notes for Claude specifically
 
 - This is a Windows machine; use the PowerShell tool for real Windows
