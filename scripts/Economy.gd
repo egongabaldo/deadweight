@@ -28,6 +28,13 @@ var power_level: int = 1
 var tier_level: int = 1
 
 
+func reset() -> void:
+	money = 0.0
+	power_level = 1
+	tier_level = 1
+	money_changed.emit(money)
+
+
 func add_money(amount: float) -> void:
 	money += amount
 	money_changed.emit(money)

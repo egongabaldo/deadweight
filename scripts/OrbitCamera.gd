@@ -4,13 +4,16 @@ extends Camera3D
 ## Only reacts to the right mouse button — left-click dragging is reserved
 ## for picking up ShreddableItems.
 
-@export var target: Vector3 = Vector3(0.0, 2.4, 1.0)
-@export var distance: float = 13.5
+@export var target: Vector3 = Vector3(0.0, 1.8, 1.0)
+@export var distance: float = 7.0
 @export var yaw: float = 180.0
 @export var pitch: float = 27.0
 @export var min_pitch: float = 10.0
 @export var max_pitch: float = 85.0
 @export var sensitivity: float = 0.25
+@export var min_distance: float = 2.0
+@export var max_distance: float = 40.0
+@export var zoom_step: float = 2.0
 
 var _dragging: bool = false
 
@@ -25,6 +28,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and _dragging:
 		yaw -= event.relative.x * sensitivity
 		pitch = clamp(pitch - event.relative.y * sensitivity, min_pitch, max_pitch)
+		_update_transform()
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP:
+		distance = clamp(distance - zoom_step, min_distance, max_distance)
+		_update_transform()
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		distance = clamp(distance + zoom_step, min_distance, max_distance)
 		_update_transform()
 
 

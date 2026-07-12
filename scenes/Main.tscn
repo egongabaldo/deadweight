@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://dij21pvjpu430"]
+[gd_scene load_steps=24 format=3 uid="uid://dij21pvjpu430"]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/ShredderMouth.gd" id="2"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/OrbitCamera.gd" id="6"]
 [ext_resource type="Script" path="res://scripts/ShredderRotor.gd" id="7"]
 [ext_resource type="Script" path="res://scripts/ShredderCombTeeth.gd" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/SledgehammerItem.tscn" id="9"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -26,6 +27,9 @@ size = Vector2(24, 24)
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(24, 0.2, 24)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground_kill"]
+size = Vector3(24, 0.3, 24)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_belt"]
 albedo_color = Color(0.55, 0.55, 0.6, 1)
 
@@ -38,6 +42,12 @@ albedo_color = Color(0.35, 0.35, 0.4, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_rail"]
 material = SubResource("StandardMaterial3D_rail")
+size = Vector3(0.2, 0.5, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_belt"]
+size = Vector3(2.4, 0.3, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rail"]
 size = Vector3(0.2, 0.5, 5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_mouth"]
@@ -53,7 +63,8 @@ size = Vector3(0.2, 0.45, 1.2)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1")
-item_scene = ExtResource("3")
+item_scenes = Array[PackedScene]([ExtResource("3"), ExtResource("9")])
+item_names = Array[String](["Chave de Boca", "Marreta"])
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_main")
@@ -75,17 +86,38 @@ mesh = SubResource("PlaneMesh_ground")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 shape = SubResource("BoxShape3D_ground")
 
+[node name="GroundKillZone" type="Area3D" parent="Ground"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/GroundKillZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_ground_kill")
+
 [node name="ConveyorBelt" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.05, -3.75)
 mesh = SubResource("BoxMesh_belt")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/StaticBody3D"]
+shape = SubResource("BoxShape3D_belt")
 
 [node name="LeftRail" type="MeshInstance3D" parent="ConveyorBelt"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3, 0.1, 0)
 mesh = SubResource("BoxMesh_rail")
 
+[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt/LeftRail"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/LeftRail/StaticBody3D"]
+shape = SubResource("BoxShape3D_rail")
+
 [node name="RightRail" type="MeshInstance3D" parent="ConveyorBelt"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 0.1, 0)
 mesh = SubResource("BoxMesh_rail")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt/RightRail"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/RightRail/StaticBody3D"]
+shape = SubResource("BoxShape3D_rail")
 
 [node name="ItemSpawner" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2, -6)
@@ -173,6 +205,12 @@ theme_override_font_sizes/font_size = 14
 horizontal_alignment = 2
 text = "Build 0"
 
+[node name="ItemTogglePanel" type="VBoxContainer" parent="HUD"]
+offset_left = 24.0
+offset_top = 100.0
+offset_right = 300.0
+offset_bottom = 240.0
+
 [node name="ShopPanel" type="VBoxContainer" parent="HUD"]
 offset_left = 990.0
 offset_top = 560.0
@@ -188,3 +226,8 @@ text = "Upgrade Power"
 custom_minimum_size = Vector2(260, 60)
 layout_mode = 2
 text = "Upgrade Shredder"
+
+[node name="ResetButton" type="Button" parent="HUD/ShopPanel"]
+custom_minimum_size = Vector2(260, 60)
+layout_mode = 2
+text = "Reset"

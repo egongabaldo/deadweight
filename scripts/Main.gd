@@ -5,7 +5,8 @@ extends Node3D
 
 const BuildInfo := preload("res://scripts/BuildInfo.gd")
 
-@export var item_scene: PackedScene
+@export var item_scenes: Array[PackedScene] = []
+@export var item_names: Array[String] = []
 @export var spawn_interval: float = 1.5
 @export var max_items_on_tray: int = 6
 
@@ -17,9 +18,13 @@ const BuildInfo := preload("res://scripts/BuildInfo.gd")
 @onready var build_label: Label = $HUD/BuildLabel
 @onready var power_button: Button = $HUD/ShopPanel/PowerUpgradeButton
 @onready var tier_button: Button = $HUD/ShopPanel/TierUpgradeButton
+@onready var reset_button: Button = $HUD/ShopPanel/ResetButton
+@onready var item_toggle_list: VBoxContainer = $HUD/ItemTogglePanel
 @onready var spawn_timer: Timer = $SpawnTimer
+@onready var ground_kill_zone: Area3D = $Ground/GroundKillZone
 
 var _items_on_tray: int = 0
+var _item_enabled: Array[bool] = []
 
 
 func _ready() -> void:
@@ -33,7 +38,11 @@ func _ready() -> void:
 	shredder_mouth.item_shredded.connect(_on_item_shredded)
 	power_button.pressed.connect(_on_power_button_pressed)
 	tier_button.pressed.connect(_on_tier_button_pressed)
+	reset_button.pressed.connect(_on_reset_button_pressed)
 	spawn_timer.timeout.connect(_on_spawn_timer_timeout)
+	ground_kill_zone.body_entered.connect(_on_ground_kill_zone_body_entered)
+
+	_build_item_toggles()
 
 	spawn_timer.wait_time = spawn_interval
 	spawn_timer.start()
@@ -43,14 +52,38 @@ func _ready() -> void:
 	_spawn_item()
 
 
+func _build_item_toggles() -> void:
+	_item_enabled.resize(item_scenes.size())
+	_item_enabled.fill(true)
+	for i in item_scenes.size():
+		var label: String = item_names[i] if i < item_names.size() else "Item %d" % (i + 1)
+		var check_box := CheckBox.new()
+		check_box.text = label
+		check_box.button_pressed = true
+		check_box.toggled.connect(_on_item_toggled.bind(i))
+		item_toggle_list.add_child(check_box)
+
+
+func _on_item_toggled(pressed: bool, index: int) -> void:
+	_item_enabled[index] = pressed
+
+
 func _spawn_item() -> void:
-	if item_scene == null or _items_on_tray >= max_items_on_tray:
+	if _items_on_tray >= max_items_on_tray:
 		return
-	var item: ShreddableItem = item_scene.instantiate()
+	var enabled_indices: Array[int] = []
+	for i in item_scenes.size():
+		if _item_enabled[i]:
+			enabled_indices.append(i)
+	if enabled_indices.is_empty():
+		return
+	var chosen_scene: PackedScene = item_scenes[enabled_indices[randi() % enabled_indices.size()]]
+	var item: ShreddableItem = chosen_scene.instantiate()
 	add_child(item)
 	item.global_position = spawn_point.global_position + Vector3(
-		0.0, 0.0, randf_range(-0.15, 0.15)
+		randf_range(-0.3, 0.3), 0.0, randf_range(-0.15, 0.15)
 	)
+	item.rotation.y = randf_range(0.0, TAU)
 	item.belt_target = conveyor_end.global_position
 	item.tree_exited.connect(_on_item_removed)
 	_items_on_tray += 1
@@ -68,6 +101,11 @@ func _on_item_shredded(_value: float) -> void:
 	SaveManager.save_game()
 
 
+func _on_ground_kill_zone_body_entered(body: Node3D) -> void:
+	if body is ShreddableItem:
+		body.queue_free()
+
+
 func _on_money_changed(new_amount: float) -> void:
 	money_label.text = "$ %.2f" % new_amount
 	tier_label.text = Economy.current_tier_name()
@@ -80,6 +118,12 @@ func _on_power_button_pressed() -> void:
 
 func _on_tier_button_pressed() -> void:
 	Economy.buy_tier_upgrade()
+
+
+func _on_reset_button_pressed() -> void:
+	Economy.reset()
+	SaveManager.save_game()
+	get_tree().reload_current_scene()
 
 
 func _refresh_shop() -> void:
