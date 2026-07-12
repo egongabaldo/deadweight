@@ -1,8 +1,8 @@
 extends Camera3D
 ## Right-click-drag orbit camera. Always looks at `target` (the shredder,
 ## by default) and lets the player drag around it to look from any angle.
-## Only reacts to the right mouse button — left-click dragging is reserved
-## for picking up ShreddableItems.
+## Ctrl+left-drag pans that look-at target instead — plain left-click
+## dragging (no Ctrl) is reserved for picking up ShreddableItems.
 
 @export var target: Vector3 = Vector3(0.0, 1.8, 1.0)
 @export var distance: float = 7.0
@@ -14,8 +14,10 @@ extends Camera3D
 @export var min_distance: float = 2.0
 @export var max_distance: float = 40.0
 @export var zoom_step: float = 2.0
+@export var pan_speed: float = 0.0025
 
 var _dragging: bool = false
+var _panning: bool = false
 
 
 func _ready() -> void:
@@ -25,9 +27,21 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 		_dragging = event.pressed
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed and event.ctrl_pressed:
+			_panning = true
+		elif not event.pressed:
+			_panning = false
 	elif event is InputEventMouseMotion and _dragging:
 		yaw -= event.relative.x * sensitivity
 		pitch = clamp(pitch - event.relative.y * sensitivity, min_pitch, max_pitch)
+		_update_transform()
+	elif event is InputEventMouseMotion and _panning:
+		# Scaled by distance so a screen-pixel of drag pans by the same
+		# apparent amount whether zoomed in close or far out.
+		var pan_scale: float = distance * pan_speed
+		target -= global_transform.basis.x * event.relative.x * pan_scale
+		target += global_transform.basis.y * event.relative.y * pan_scale
 		_update_transform()
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP:
 		distance = clamp(distance - zoom_step, min_distance, max_distance)

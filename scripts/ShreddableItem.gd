@@ -66,6 +66,10 @@ func _ready() -> void:
 func _on_input_event(_camera: Node, event: InputEvent, click_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
+			if event.ctrl_pressed:
+				# Ctrl+left-drag is reserved for panning the camera (see
+				# OrbitCamera.gd) — don't also start picking the item up.
+				return
 			dragging = true
 			on_belt = false
 			freeze = false
@@ -194,3 +198,12 @@ func _compute_footprint_radius() -> float:
 			var size: Vector3 = (child.shape as BoxShape3D).size
 			return Vector2(size.x, size.z).length() / 2.0
 	return 0.5
+
+
+## Half the item's own collision height, so a spawner can rest it exactly on
+## top of a surface instead of guessing an offset per item type.
+func get_rest_height_offset() -> float:
+	for child in get_children():
+		if child is CollisionShape3D and child.shape is BoxShape3D:
+			return (child.shape as BoxShape3D).size.y / 2.0
+	return 0.1
