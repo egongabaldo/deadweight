@@ -96,7 +96,14 @@ func _spawn_item() -> void:
 		randf_range(-0.3, 0.3), item.get_rest_height_offset() + 0.02, randf_range(-0.15, 0.15)
 	)
 	item.rotation.y = randf_range(0.0, TAU)
-	item.belt_target = conveyor_end.global_position
+	# Same rest-height offset as the spawn position above — belt_target is
+	# what move_toward() actually drives the item's Y toward too (it
+	# interpolates all three axes, not just X/Z), so without this the item
+	# would sink back down into the belt over the course of the ride even
+	# though it spawned sitting correctly on top.
+	item.belt_target = conveyor_end.global_position + Vector3(
+		0.0, item.get_rest_height_offset() + 0.02, 0.0
+	)
 	item.tree_exited.connect(_on_item_removed)
 	_items_on_tray += 1
 
