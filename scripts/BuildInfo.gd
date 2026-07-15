@@ -3,4 +3,4 @@ extends RefCounted
 ## they're on the same version. Bump BUILD_NUMBER by 1 every time you push
 ## a change to the game — see CLAUDE.md.
 
-const BUILD_NUMBER: int = 2
+const BUILD_NUMBER: int = 3

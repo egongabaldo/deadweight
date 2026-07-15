@@ -4,10 +4,10 @@ extends Camera3D
 ## Ctrl+left-drag pans that look-at target instead — plain left-click
 ## dragging (no Ctrl) is reserved for picking up ShreddableItems.
 
-@export var target: Vector3 = Vector3(0.0, 1.8, 1.0)
-@export var distance: float = 7.0
-@export var yaw: float = 180.0
-@export var pitch: float = 27.0
+@export var target: Vector3 = Vector3(0.0, 1.8, -0.5)
+@export var distance: float = 22.5
+@export var yaw: float = -45.0
+@export var pitch: float = 45.0
 @export var min_pitch: float = 10.0
 @export var max_pitch: float = 85.0
 @export var sensitivity: float = 0.25
