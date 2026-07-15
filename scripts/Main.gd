@@ -7,8 +7,12 @@ const BuildInfo := preload("res://scripts/BuildInfo.gd")
 
 @export var item_scenes: Array[PackedScene] = []
 @export var item_names: Array[String] = []
+@export var spawn_puff_scene: PackedScene
 @export var spawn_interval: float = 1.5
-@export var max_items_on_tray: int = 6
+@export var max_items_on_tray: int = 4
+@export var spawn_fall_height: float = 0.5
+@export var spawn_settle_time: float = 0.3
+@export var spawn_clear_distance: float = 1.3
 
 @onready var spawn_point: Marker3D = $ItemSpawner
 @onready var conveyor_end: Marker3D = $ConveyorEnd
@@ -77,7 +81,20 @@ func _on_item_toggled(pressed: bool, index: int) -> void:
 
 
 func _spawn_item() -> void:
-	if _items_on_tray >= max_items_on_tray:
+	# Guards against the respawn-on-destroy path below firing mid-teardown
+	# (Reset's reload_current_scene(), or the whole tree being torn down on
+	# quit): every surviving item's tree_exited fires in that cascade too,
+	# and without this it tries to add_child/read transforms on nodes that
+	# are already mid-exit, which errors out repeatedly.
+	if not is_inside_tree() or _items_on_tray >= max_items_on_tray:
+		return
+	if _is_spawn_point_blocked():
+		# An item is still queued right at the spawn marker (belt backed up
+		# under the lower max_items_on_tray + instant-respawn combo). Spawning
+		# on top of it used to fling both items apart violently — they'd get
+		# removed almost instantly (ground kill zone / limbo), which retried
+		# the spawn immediately and repeated forever. Bail out and let the
+		# next spawn_timer tick or item removal retry once there's room.
 		return
 	var enabled_indices: Array[int] = []
 	for i in item_scenes.size():
@@ -88,28 +105,63 @@ func _spawn_item() -> void:
 	var chosen_scene: PackedScene = item_scenes[enabled_indices[randi() % enabled_indices.size()]]
 	var item: ShreddableItem = chosen_scene.instantiate()
 	add_child(item)
-	# Rest the item's own collision bottom exactly on the belt surface — the
-	# spawn marker sits AT that surface, so a bare offset of 0 would spawn
-	# the item's center there, embedding half of it inside the belt's
-	# collider and popping out violently the moment it's picked up.
-	item.global_position = spawn_point.global_position + Vector3(
-		randf_range(-0.3, 0.3), item.get_rest_height_offset() + 0.02, randf_range(-0.15, 0.15)
-	)
+	var rest_offset: float = item.get_rest_height_offset() + 0.02
+	var xz_jitter := Vector3(randf_range(-0.3, 0.3), 0.0, randf_range(-0.15, 0.15))
+	var rest_position: Vector3 = spawn_point.global_position + xz_jitter + Vector3(0.0, rest_offset, 0.0)
+	item.global_position = rest_position + Vector3(0.0, spawn_fall_height, 0.0)
 	item.rotation.y = randf_range(0.0, TAU)
 	# Same rest-height offset as the spawn position above — belt_target is
 	# what move_toward() actually drives the item's Y toward too (it
 	# interpolates all three axes, not just X/Z), so without this the item
 	# would sink back down into the belt over the course of the ride even
 	# though it spawned sitting correctly on top.
-	item.belt_target = conveyor_end.global_position + Vector3(
-		0.0, item.get_rest_height_offset() + 0.02, 0.0
-	)
+	item.belt_target = conveyor_end.global_position + Vector3(0.0, rest_offset, 0.0)
+	item.on_belt = false
 	item.tree_exited.connect(_on_item_removed)
 	_items_on_tray += 1
+
+	_spawn_puff(spawn_point.global_position + xz_jitter)
+
+	# Kinematic drop-in tween — the item stays frozen (set in its own
+	# _ready()) the whole time instead of falling as a real dynamic body.
+	# A genuinely dynamic fall could land on/inside whatever's already
+	# queued near the spawn marker and get flung apart by the collision
+	# response; the flung item then died almost instantly (ground kill
+	# zone / limbo), which retriggered this same spawn and repeated in a
+	# tight loop. A frozen body can't be shoved around by a collision, so
+	# it just settles in place even when the belt is congested.
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_IN)
+	tween.tween_property(item, "global_position", rest_position, spawn_settle_time)
+	await tween.finished
+	if is_instance_valid(item):
+		item.on_belt = true
+
+
+func _is_spawn_point_blocked() -> bool:
+	var spawn_z: float = spawn_point.global_position.z
+	for other in get_tree().get_nodes_in_group("shreddable_items"):
+		if other is ShreddableItem and other.global_position.z < spawn_z + spawn_clear_distance:
+			return true
+	return false
+
+
+func _spawn_puff(at_position: Vector3) -> void:
+	if spawn_puff_scene == null:
+		return
+	var puff: CPUParticles3D = spawn_puff_scene.instantiate()
+	add_child(puff)
+	puff.global_position = at_position
+	puff.emitting = true
+	puff.finished.connect(puff.queue_free)
 
 
 func _on_item_removed() -> void:
 	_items_on_tray -= 1
+	# Deferred so a whole batch of items leaving the tree at once (Reset,
+	# quit) doesn't re-enter add_child() while their parent is still busy
+	# processing that same removal cascade.
+	_spawn_item.call_deferred()
 
 
 func _on_spawn_timer_timeout() -> void:
