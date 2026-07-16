@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ShreddableItem.gd" id="1"]
 
@@ -22,25 +22,29 @@ shape = SubResource("BoxShape3D_item")
 [node name="Visual" type="CSGCombiner3D" parent="."]
 
 [node name="Shaft" type="CSGBox3D" parent="Visual"]
-size = Vector3(0.14, 0.05, 0.6)
+size = Vector3(0.12, 0.045, 0.62)
 material = SubResource("StandardMaterial3D_chrome")
 
-[node name="HeadA" type="CSGBox3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.39)
-size = Vector3(0.36, 0.06, 0.24)
+[node name="HeadA" type="CSGCylinder3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.38)
+radius = 0.17
+height = 0.05
+sides = 24
 material = SubResource("StandardMaterial3D_chrome")
 
 [node name="NotchA" type="CSGBox3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.43)
-size = Vector3(0.16, 0.09, 0.16)
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, 0.03, 0, 0.47)
+size = Vector3(0.115, 0.09, 0.22)
 operation = 2
 
-[node name="HeadB" type="CSGBox3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.38)
-size = Vector3(0.32, 0.06, 0.22)
+[node name="HeadB" type="CSGCylinder3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.36)
+radius = 0.15
+height = 0.05
+sides = 24
 material = SubResource("StandardMaterial3D_chrome")
 
 [node name="NotchB" type="CSGBox3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.415)
-size = Vector3(0.14, 0.09, 0.15)
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, -0.025, 0, -0.45)
+size = Vector3(0.1, 0.09, 0.2)
 operation = 2
