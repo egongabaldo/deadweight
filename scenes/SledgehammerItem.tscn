@@ -35,7 +35,9 @@ shape = SubResource("BoxShape3D_item")
 [node name="Handle" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.075)
 mesh = SubResource("BoxMesh_handle")
+metadata/durability = 0.8
 
 [node name="Head" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.42)
 mesh = SubResource("BoxMesh_head")
+metadata/durability = 2.4

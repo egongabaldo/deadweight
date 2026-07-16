@@ -1,16 +1,16 @@
-[gd_scene load_steps=27 format=3 uid="uid://dij21pvjpu430"]
+[gd_scene format=3 uid="uid://dij21pvjpu430"]
 
-[ext_resource type="Script" path="res://scripts/Main.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/ShredderMouth.gd" id="2"]
+[ext_resource type="Script" uid="uid://dkiqbayupedx" path="res://scripts/Main.gd" id="1"]
+[ext_resource type="Script" uid="uid://bw0bs5f412el6" path="res://scripts/ShredderMouth.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ShreddableItem.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/Burst.tscn" id="4"]
-[ext_resource type="Script" path="res://scripts/HopperMesh.gd" id="5"]
-[ext_resource type="Script" path="res://scripts/OrbitCamera.gd" id="6"]
-[ext_resource type="Script" path="res://scripts/ShredderRotor.gd" id="7"]
-[ext_resource type="Script" path="res://scripts/ShredderCombTeeth.gd" id="8"]
+[ext_resource type="Script" uid="uid://b3o8xmapsgfyh" path="res://scripts/HopperMesh.gd" id="5"]
+[ext_resource type="Script" uid="uid://eqctjedi1qeh" path="res://scripts/OrbitCamera.gd" id="6"]
+[ext_resource type="Script" uid="uid://chngi67jbr52m" path="res://scripts/ShredderRotor.gd" id="7"]
+[ext_resource type="Script" uid="uid://c7fr1hyf5ajj3" path="res://scripts/ShredderCombTeeth.gd" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/SledgehammerItem.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/SpawnPuff.tscn" id="10"]
-[ext_resource type="Script" path="res://scripts/ConveyorBeltVisual.gd" id="11"]
+[ext_resource type="Script" uid="uid://b87ar8h1ukkj5" path="res://scripts/ConveyorBeltVisual.gd" id="11"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -66,160 +66,160 @@ size = Vector3(2.6, 0.25, 1.2)
 material = SubResource("StandardMaterial3D_rail")
 size = Vector3(0.2, 0.45, 1.2)
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=1894988913]
 script = ExtResource("1")
 item_scenes = Array[PackedScene]([ExtResource("3"), ExtResource("9")])
 item_names = Array[String](["Chave de Boca", "Marreta"])
 spawn_puff_scene = ExtResource("10")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1125113242]
 environment = SubResource("Environment_main")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=760250485]
 transform = Transform3D(0.819152, 0.469846, -0.32899, 0, 0.573576, 0.819152, 0.573576, -0.67101, 0.469846, 0, 0, 0)
 shadow_enabled = true
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1126261773]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.77, -6.63)
 script = ExtResource("6")
 
-[node name="Ground" type="MeshInstance3D" parent="."]
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=1254510613]
 mesh = SubResource("PlaneMesh_ground")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground" unique_id=889127349]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D" unique_id=1608722248]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 shape = SubResource("BoxShape3D_ground")
 
-[node name="GroundKillZone" type="Area3D" parent="Ground"]
+[node name="GroundKillZone" type="Area3D" parent="Ground" unique_id=1222186093]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/GroundKillZone"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/GroundKillZone" unique_id=376397014]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 shape = SubResource("BoxShape3D_ground_kill")
 
-[node name="CornerLabel1" type="Label3D" parent="Ground"]
+[node name="CornerLabel1" type="Label3D" parent="Ground" unique_id=122162468]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1, -11)
 billboard = 1
-font_size = 220
-outline_size = 24
 modulate = Color(1, 0.2, 0.15, 1)
 text = "1"
+font_size = 220
+outline_size = 24
 
-[node name="CornerLabel2" type="Label3D" parent="Ground"]
+[node name="CornerLabel2" type="Label3D" parent="Ground" unique_id=1034670972]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1, -11)
 billboard = 1
-font_size = 220
-outline_size = 24
 modulate = Color(1, 0.2, 0.15, 1)
 text = "2"
+font_size = 220
+outline_size = 24
 
-[node name="CornerLabel3" type="Label3D" parent="Ground"]
+[node name="CornerLabel3" type="Label3D" parent="Ground" unique_id=1853664395]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1, 11)
 billboard = 1
-font_size = 220
-outline_size = 24
 modulate = Color(1, 0.2, 0.15, 1)
 text = "3"
-
-[node name="CornerLabel4" type="Label3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1, 11)
-billboard = 1
 font_size = 220
 outline_size = 24
+
+[node name="CornerLabel4" type="Label3D" parent="Ground" unique_id=2087083522]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1, 11)
+billboard = 1
 modulate = Color(1, 0.2, 0.15, 1)
 text = "4"
+font_size = 220
+outline_size = 24
 
-[node name="ConveyorBelt" type="MeshInstance3D" parent="."]
+[node name="ConveyorBelt" type="MeshInstance3D" parent="." unique_id=413620841]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.05, -3.75)
 mesh = SubResource("BoxMesh_belt")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt"]
+[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt" unique_id=545145084]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/StaticBody3D" unique_id=568993599]
 shape = SubResource("BoxShape3D_belt")
 
-[node name="BeltSurface" type="MeshInstance3D" parent="ConveyorBelt"]
+[node name="BeltSurface" type="MeshInstance3D" parent="ConveyorBelt" unique_id=1148414559]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.152, 0)
 mesh = SubResource("PlaneMesh_belt_surface")
 script = ExtResource("11")
 
-[node name="LeftRail" type="MeshInstance3D" parent="ConveyorBelt"]
+[node name="LeftRail" type="MeshInstance3D" parent="ConveyorBelt" unique_id=973564192]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3, 0.1, 0)
 mesh = SubResource("BoxMesh_rail")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt/LeftRail"]
+[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt/LeftRail" unique_id=1156312465]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/LeftRail/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/LeftRail/StaticBody3D" unique_id=1945645355]
 shape = SubResource("BoxShape3D_rail")
 
-[node name="RightRail" type="MeshInstance3D" parent="ConveyorBelt"]
+[node name="RightRail" type="MeshInstance3D" parent="ConveyorBelt" unique_id=1226564346]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 0.1, 0)
 mesh = SubResource("BoxMesh_rail")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt/RightRail"]
+[node name="StaticBody3D" type="StaticBody3D" parent="ConveyorBelt/RightRail" unique_id=763789513]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/RightRail/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ConveyorBelt/RightRail/StaticBody3D" unique_id=1834344413]
 shape = SubResource("BoxShape3D_rail")
 
-[node name="ItemSpawner" type="Marker3D" parent="."]
+[node name="ItemSpawner" type="Marker3D" parent="." unique_id=2108762497]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2, -6)
 
-[node name="ConveyorEnd" type="Marker3D" parent="."]
+[node name="ConveyorEnd" type="Marker3D" parent="." unique_id=154893561]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2, -1.5)
 
-[node name="ShredderMouth" type="Area3D" parent="."]
+[node name="ShredderMouth" type="Area3D" parent="." unique_id=403152701]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 1)
 script = ExtResource("2")
 particles_scene = ExtResource("4")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ShredderMouth"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ShredderMouth" unique_id=1304807904]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.9, 0)
 shape = SubResource("BoxShape3D_mouth")
 
-[node name="Hopper" type="MeshInstance3D" parent="ShredderMouth"]
+[node name="Hopper" type="MeshInstance3D" parent="ShredderMouth" unique_id=1778492710]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.9, 0)
 script = ExtResource("5")
 
-[node name="Rotors" type="Node3D" parent="ShredderMouth"]
+[node name="Rotors" type="Node3D" parent="ShredderMouth" unique_id=1358637428]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.85, 0)
 
-[node name="RotorA" type="Node3D" parent="ShredderMouth/Rotors"]
+[node name="RotorA" type="Node3D" parent="ShredderMouth/Rotors" unique_id=543049227]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.22)
 script = ExtResource("7")
 
-[node name="RotorB" type="Node3D" parent="ShredderMouth/Rotors"]
+[node name="RotorB" type="Node3D" parent="ShredderMouth/Rotors" unique_id=1139379876]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.22)
 script = ExtResource("7")
 disc_offset = 0.12
 spin_direction = -1.0
 
-[node name="CombFront" type="Node3D" parent="ShredderMouth/Rotors"]
+[node name="CombFront" type="Node3D" parent="ShredderMouth/Rotors" unique_id=687615841]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.56)
 script = ExtResource("8")
 facing = -1.0
 
-[node name="CombBack" type="Node3D" parent="ShredderMouth/Rotors"]
+[node name="CombBack" type="Node3D" parent="ShredderMouth/Rotors" unique_id=431617766]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.56)
 script = ExtResource("8")
 
-[node name="Trough" type="MeshInstance3D" parent="ShredderMouth"]
+[node name="Trough" type="MeshInstance3D" parent="ShredderMouth" unique_id=1194783526]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.025, 0)
 mesh = SubResource("BoxMesh_trough")
 
-[node name="TroughLeftRail" type="MeshInstance3D" parent="ShredderMouth/Trough"]
+[node name="TroughLeftRail" type="MeshInstance3D" parent="ShredderMouth/Trough" unique_id=43728578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4, 0.1, 0)
 mesh = SubResource("BoxMesh_trough_rail")
 
-[node name="TroughRightRail" type="MeshInstance3D" parent="ShredderMouth/Trough"]
+[node name="TroughRightRail" type="MeshInstance3D" parent="ShredderMouth/Trough" unique_id=461999821]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0.1, 0)
 mesh = SubResource("BoxMesh_trough_rail")
 
-[node name="SpawnTimer" type="Timer" parent="."]
+[node name="SpawnTimer" type="Timer" parent="." unique_id=1735951494]
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=978711546]
 
-[node name="MoneyLabel" type="Label" parent="HUD"]
+[node name="MoneyLabel" type="Label" parent="HUD" unique_id=1024203129]
 offset_left = 24.0
 offset_top = 20.0
 offset_right = 340.0
@@ -227,7 +227,7 @@ offset_bottom = 56.0
 theme_override_font_sizes/font_size = 28
 text = "$ 0.00"
 
-[node name="TierLabel" type="Label" parent="HUD"]
+[node name="TierLabel" type="Label" parent="HUD" unique_id=1351171035]
 offset_left = 24.0
 offset_top = 56.0
 offset_right = 340.0
@@ -235,7 +235,7 @@ offset_bottom = 84.0
 theme_override_font_sizes/font_size = 18
 text = "Mini Shredder"
 
-[node name="BuildLabel" type="Label" parent="HUD"]
+[node name="BuildLabel" type="Label" parent="HUD" unique_id=1837892844]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -248,29 +248,29 @@ theme_override_font_sizes/font_size = 14
 text = "Build 0"
 horizontal_alignment = 2
 
-[node name="ItemTogglePanel" type="VBoxContainer" parent="HUD"]
+[node name="ItemTogglePanel" type="VBoxContainer" parent="HUD" unique_id=1644207592]
 offset_left = 24.0
 offset_top = 100.0
 offset_right = 300.0
 offset_bottom = 240.0
 
-[node name="ShopPanel" type="VBoxContainer" parent="HUD"]
+[node name="ShopPanel" type="VBoxContainer" parent="HUD" unique_id=1295420815]
 offset_left = 990.0
 offset_top = 400.0
 offset_right = 1256.0
 offset_bottom = 700.0
 
-[node name="PowerUpgradeButton" type="Button" parent="HUD/ShopPanel"]
+[node name="PowerUpgradeButton" type="Button" parent="HUD/ShopPanel" unique_id=1807493632]
 custom_minimum_size = Vector2(260, 60)
 layout_mode = 2
 text = "Upgrade Power"
 
-[node name="TierUpgradeButton" type="Button" parent="HUD/ShopPanel"]
+[node name="TierUpgradeButton" type="Button" parent="HUD/ShopPanel" unique_id=611698787]
 custom_minimum_size = Vector2(260, 60)
 layout_mode = 2
 text = "Upgrade Shredder"
 
-[node name="ResetButton" type="Button" parent="HUD/ShopPanel"]
+[node name="ResetButton" type="Button" parent="HUD/ShopPanel" unique_id=1473812805]
 custom_minimum_size = Vector2(260, 60)
 layout_mode = 2
 text = "Reset"

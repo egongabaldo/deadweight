@@ -36,6 +36,13 @@ extends RigidBody3D
 @export var hold_angular_damp: float = 1.5
 @export var hold_linear_damp: float = 0.5
 @export var limbo_y: float = -8.0
+## Seconds the shredder takes to grind this item when its visual doesn't
+## define per-part `durability` metadata (see get_grind_parts()).
+@export var default_durability: float = 1.5
+
+## Set by the shredder when the grind starts, so the player can't pick the
+## item back up (or the belt/hold logic re-engage) mid-grind.
+var being_shredded: bool = false
 
 var dragging: bool = false
 var drag_plane_y: float = 0.0
@@ -71,6 +78,9 @@ func _on_input_event(_camera: Node, event: InputEvent, click_position: Vector3, 
 			if event.ctrl_pressed:
 				# Ctrl+left-drag is reserved for panning the camera (see
 				# OrbitCamera.gd) — don't also start picking the item up.
+				return
+			if being_shredded:
+				# Once the rotors have it, it can't be pulled back out.
 				return
 			_start_hold(click_position)
 		else:
@@ -213,3 +223,56 @@ func get_rest_height_offset() -> float:
 		if child is CollisionShape3D and child.shape is BoxShape3D:
 			return (child.shape as BoxShape3D).size.y / 2.0
 	return 0.1
+
+
+## Disables (or re-enables) this item's own collision. Used when the
+## grind starts so the still-spinning rotors don't keep shoving a body
+## that's being held in the blades and consumed.
+func set_collision_enabled(enabled: bool) -> void:
+	for child in get_children():
+		if child is CollisionShape3D:
+			# Deferred: this gets called from inside the ShredderMouth's
+			# body_entered callback, i.e. mid physics flush, where changing
+			# shape state directly is an error.
+			child.set_deferred("disabled", not enabled)
+
+
+## The visual pieces the shredder grinds through, in the durability sense:
+## each part is consumed one at a time, taking `durability` seconds, and
+## tints the chip particles with its own material color. Parts are the
+## children of Visual that carry a `durability` metadata entry (e.g. the
+## sledgehammer's wood handle vs. steel head); items whose visual is one
+## homogeneous material (like the all-chrome wrench) define no per-part
+## metadata and fall back to the whole Visual as a single part using
+## `default_durability`.
+func get_grind_parts() -> Array[Dictionary]:
+	var parts: Array[Dictionary] = []
+	var visual: Node3D = get_node_or_null("Visual")
+	if visual == null:
+		return parts
+	for child in visual.get_children():
+		if child is Node3D and child.has_meta("durability"):
+			parts.append({
+				"node": child,
+				"durability": float(child.get_meta("durability")),
+				"color": _part_color(child),
+			})
+	if parts.is_empty():
+		parts.append({
+			"node": visual,
+			"durability": default_durability,
+			"color": _part_color(visual),
+		})
+	return parts
+
+
+func _part_color(node: Node) -> Color:
+	if node is CSGPrimitive3D and node.get("material") is StandardMaterial3D:
+		return (node.get("material") as StandardMaterial3D).albedo_color
+	if node is MeshInstance3D and node.mesh != null and node.mesh.get("material") is StandardMaterial3D:
+		return (node.mesh.get("material") as StandardMaterial3D).albedo_color
+	for child in node.get_children():
+		var found: Color = _part_color(child)
+		if found.a > 0.0:
+			return found
+	return Color(0, 0, 0, 0)
