@@ -84,6 +84,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.77, -6.63)
 script = ExtResource("6")
 
 [node name="Ground" type="MeshInstance3D" parent="." unique_id=1254510613]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.009711862, -0.025663376, 0.02729702)
 mesh = SubResource("PlaneMesh_ground")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Ground" unique_id=889127349]

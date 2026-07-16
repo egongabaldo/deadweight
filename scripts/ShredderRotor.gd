@@ -1,16 +1,30 @@
 extends Node3D
-## Procedurally builds one shredder rotor shaft: a row of thick toothed
-## gear discs (chunky angular claws, not thin blades) mounted on a slim
-## center rod, matching a real industrial two-shaft shredder rotor. Spins
-## continuously around its own axis (local X). The physical collision is a
-## plain cylinder rather than the toothed mesh, since Godot's concave
-## trimesh shapes aren't meant to move/rotate reliably — the cylinder still
-## gives falling items a believable bounce off the spinning shaft.
+## Procedurally builds one shredder rotor shaft: a row of thick round
+## discs, each with a few hooked claw teeth, mounted on a smooth round
+## core rod — matching the dual-shaft shredder in the reference footage
+## (mostly-circular discs with 2-3 chunky hooks, not spiky star gears).
+## Each claw ramps up gradually and drops off sharply, so the steep face
+## leads into the spin and reads as the "bite"; the profile is mirrored
+## with spin_direction so the counter-rotating pair both bite downward
+## into the gap. Claws are phase-shifted disc to disc, spiraling along
+## the shaft like the real machine. Spins continuously around its own
+## axis (local X). The physical collision is a plain cylinder rather than
+## the toothed mesh, since Godot's concave trimesh shapes aren't meant to
+## move/rotate reliably — the cylinder still gives falling items a
+## believable bounce off the spinning shaft.
 
 @export var shaft_length: float = 2.2
 @export var outer_radius: float = 0.3
-@export var inner_radius: float = 0.17
-@export var teeth_count: int = 8
+@export var body_radius: float = 0.23
+@export var claw_count: int = 3
+## Fraction of each claw's angular period spent ramping from the disc
+## body up to the claw tip (the rest is bare disc). Small = short steep
+## hooks, large = long shark-fin ramps.
+@export var claw_ramp_fraction: float = 0.24
+## Angular shift between neighbouring discs, so the claws spiral along
+## the shaft instead of forming straight rows.
+@export var claw_phase_step: float = 0.55
+@export var segments: int = 48
 @export var disc_thickness: float = 0.12
 @export var disc_gap: float = 0.12
 @export var disc_offset: float = 0.0 ## shifts this rotor's discs so they interleave with the other rotor's
@@ -51,7 +65,7 @@ func _build_mesh() -> ArrayMesh:
 	var i: int = 0
 	while x + disc_thickness <= half_len + 0.001:
 		var tint: Color = grime_color if i % 3 == 0 else base_color
-		_add_disc(st, x, x + disc_thickness, tint)
+		_add_disc(st, x, x + disc_thickness, tint, float(i) * claw_phase_step)
 		x += period
 		i += 1
 
@@ -69,17 +83,28 @@ func _build_mesh() -> ArrayMesh:
 	return array_mesh
 
 
-func _add_disc(st: SurfaceTool, x0: float, x1: float, color: Color) -> void:
+## Radius of the disc profile at a given angle: a smooth circle at
+## body_radius, interrupted by claw_count hooks that ramp up to
+## outer_radius and then drop off sharply. Mirrored by spin_direction so
+## the steep drop (the biting face) always leads into the rotation.
+func _claw_radius(angle: float) -> float:
+	var claw_period: float = TAU / claw_count
+	var local: float = fposmod(angle * spin_direction, claw_period) / claw_period
+	if local < claw_ramp_fraction:
+		return body_radius + (outer_radius - body_radius) * (local / claw_ramp_fraction)
+	return body_radius
+
+
+func _add_disc(st: SurfaceTool, x0: float, x1: float, color: Color, phase: float) -> void:
 	st.set_color(color)
-	var sides: int = teeth_count * 2
 	var front_center := Vector3(x0, 0, 0)
 	var back_center := Vector3(x1, 0, 0)
 
-	for i in range(sides):
-		var a0: float = (float(i) / sides) * TAU
-		var a1: float = (float(i + 1) / sides) * TAU
-		var r0: float = outer_radius if i % 2 == 0 else inner_radius
-		var r1: float = outer_radius if (i + 1) % 2 == 0 else inner_radius
+	for i in range(segments):
+		var a0: float = (float(i) / segments) * TAU
+		var a1: float = (float(i + 1) / segments) * TAU
+		var r0: float = _claw_radius(a0 + phase)
+		var r1: float = _claw_radius(a1 + phase)
 
 		var p0f := Vector3(x0, cos(a0) * r0, sin(a0) * r0)
 		var p1f := Vector3(x0, cos(a1) * r1, sin(a1) * r1)
@@ -104,8 +129,8 @@ func _add_disc(st: SurfaceTool, x0: float, x1: float, color: Color) -> void:
 
 func _add_core(st: SurfaceTool, x0: float, x1: float, color: Color) -> void:
 	st.set_color(color)
-	var sides: int = 8
-	var radius: float = inner_radius * 0.55
+	var sides: int = 20
+	var radius: float = body_radius * 0.5
 
 	for i in range(sides):
 		var a0: float = (float(i) / sides) * TAU
